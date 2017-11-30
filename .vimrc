@@ -77,6 +77,8 @@ call minpac#add('godlygeek/tabular')
 call minpac#add('roman/golden-ratio')
 call minpac#add('vim-scripts/greplace.vim')
 call minpac#add('nvie/vim-flake8')
+call minpac#add('parsonsmatt/intero-neovim')
+call minpac#add('mpickering/hlint-refactor-vim')
 "call minpac#update()
 command! PackUpdate call minpac#update()
 command! PackClean call minpac#clean()
@@ -130,8 +132,8 @@ set linebreak
 set cmdheight=2               " command line two lines high
 set undolevels=1000           " 1000 undos
 set updatecount=100           " switch every 100 chars
-"set complete=.,w,b,u,U,t,i,d " do lots of scanning on tab completion
-set complete=.,w,b,u,t,i      " do lots of scanning on tab completion
+set complete=.,w,b,u,U,t,i,d " do lots of scanning on tab completion
+"set complete=.,w,b,u,t,i      " do lots of scanning on tab completion
 set ttyfast                   " we have a fast terminal
 set noerrorbells              " No error bells please
 "set clipboard=unnamedplus,autoselect
@@ -582,4 +584,46 @@ inoremap <C-v> <ESC>"+pa
 vnoremap <C-c> "+y
 vnoremap <C-d> "+d
 
+"----------------------{{{
+augroup interoMaps
+  au!
+  " Maps for intero. Restrict to Haskell buffers so the bindings don't collide.
+
+  " Background process and window management
+  au FileType haskell nnoremap <silent> <leader>is :InteroStart<CR>
+  au FileType haskell nnoremap <silent> <leader>ik :InteroKill<CR>
+
+  " Open intero/GHCi split horizontally
+  au FileType haskell nnoremap <silent> <leader>io :InteroOpen<CR>
+  " Open intero/GHCi split vertically
+  au FileType haskell nnoremap <silent> <leader>iov :InteroOpen<CR><C-W>H
+  au FileType haskell nnoremap <silent> <leader>ih :InteroHide<CR>
+
+  " Reloading (pick one)
+  " Automatically reload on save
+  au BufWritePost *.hs InteroReload
+  " Manually save and reload
+  au FileType haskell nnoremap <silent> <leader>wr :w \| :InteroReload<CR>
+
+  " Load individual modules
+  au FileType haskell nnoremap <silent> <leader>il :InteroLoadCurrentModule<CR>
+  au FileType haskell nnoremap <silent> <leader>if :InteroLoadCurrentFile<CR>
+
+  " Type-related information
+  " Heads up! These next two differ from the rest.
+  au FileType haskell map <silent> <leader>t <Plug>InteroGenericType
+  au FileType haskell map <silent> <leader>T <Plug>InteroType
+  au FileType haskell nnoremap <silent> <leader>it :InteroTypeInsert<CR>
+
+  " Navigation
+  au FileType haskell nnoremap <silent> <leader>jd :InteroGoToDef<CR>
+
+  " Managing targets
+  " Prompts you to enter targets (no silent):
+  au FileType haskell nnoremap <leader>ist :InteroSetTargets<SPACE>
+augroup END
+
+" Intero starts automatically. Set this if you'd like to prevent that.
+let g:intero_start_immediately = 0
+"----------------------}}}
 
